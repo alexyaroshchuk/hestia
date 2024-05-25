@@ -1,0 +1,50 @@
+version: '3.9'
+services:
+  app:
+    container_name: hestia
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8765"
+    restart: on-failure
+    command: go run main.go
+    depends_on:
+      - hestia-postgres
+    networks:
+      - hestia
+
+  hestia-postgres:
+    image: postgres:latest
+    container_name: hestia_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - '5432:5432'
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+    networks:
+      - hestia
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - hestia
+    volumes:
+      - ./db/migration:/db/migration
+    command: [ "-path", "/db/migration", "-database",  "postgresql://test:password@hestia-postgres:5432/hestia?sslmode=disable", "up"]
+    depends_on:
+      - hestia-postgres
+    links:
+      - hestia-postgres
+
+volumes:
+  api:
+  database_postgres:
+
+networks:
+  hestia:
+    driver: bridge
