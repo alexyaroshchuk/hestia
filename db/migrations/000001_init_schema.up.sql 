@@ -18,3 +18,19 @@ CREATE TABLE email_tokens (
     consumed_at     TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE flats(
+    id                BIGSERIAL primary key,
+    title             TEXT NOT NULL,
+    price             TEXT NOT NULL,
+    address           TEXT NOT NULL,
+    surface           TEXT,
+    rooms             TEXT,
+    floor             TEXT,
+    available_from    TEXT,
+    rent              TEXT,
+    deposit           TEXT,
+    description       TEXT,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL
+);

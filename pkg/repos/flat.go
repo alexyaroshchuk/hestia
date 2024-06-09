@@ -6,12 +6,27 @@ import (
 	"hestia/pkg/models"
 )
 
-func insertFlat(ef execFunc, u models.Flat) error {
+func insertFlat(ef execFunc, f models.Flat) error {
 	q := db.Query{}
 	count := 0
 
-	q.Unsafe(`INSERT INTO flats (id, email, password_hash, is_active, created_at, updated_at) VALUES (`)
-	q.Params(&count, u.ID, u.Email, u.PasswordHash, u.IsActive, u.CreatedAt, u.UpdatedAt)
+	q.Unsafe(`INSERT INTO "flats" (title, price, 
+                   					address, surface, rooms, 
+                   					floor, available_from, rent, 
+                   					deposit, description, created_at, updated_at) VALUES (`)
+	q.Params(&count,
+		f.Title,
+		f.Price,
+		f.Address,
+		f.Surface,
+		f.Rooms,
+		f.Floor,
+		f.AvailableFrom,
+		f.Rent,
+		f.Deposit,
+		f.Description,
+		f.CreatedAt,
+		f.UpdatedAt)
 	q.Unsafe(`)`)
 
 	s, params, err := q.Get()

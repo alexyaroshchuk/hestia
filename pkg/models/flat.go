@@ -7,13 +7,23 @@ import (
 type FlatFilter struct {
 }
 
+type Url struct {
+	Url string
+}
+
 // Flat contains the data for a flat.
 type Flat struct {
-	ID           string
-	Email        string
-	PasswordHash string
-	IsActive     bool
-	Role         string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID            string
+	Title         string
+	Price         string
+	Address       string
+	Surface       string
+	Rooms         string
+	Floor         string
+	AvailableFrom string
+	Rent          string
+	Deposit       string
+	Description   string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }

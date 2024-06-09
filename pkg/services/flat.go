@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"hestia/pkg/utils/parsers"
 	"net/http"
 	"sync"
 	"time"
@@ -31,6 +32,7 @@ type FlatInterface interface {
 type FlatService struct {
 	rep        *repos.Store
 	wg         *sync.WaitGroup
+	collector  *parsers.Collector
 	errHandler ErrFunc
 
 	// NowFunc is used to get the current time.
@@ -39,11 +41,12 @@ type FlatService struct {
 }
 
 // NewFlatService creates a new Service.
-func NewFlatService(db *sql.DB, errHandler ErrFunc) *FlatService {
+func NewFlatService(db *sql.DB, collector *parsers.Collector, errHandler ErrFunc) *FlatService {
 	svc := &FlatService{
 		rep:        repos.New(db),
 		wg:         &sync.WaitGroup{},
 		errHandler: errHandler,
+		collector:  collector,
 
 		NowFunc: time.Now,
 	}
@@ -127,12 +130,18 @@ func (s *FlatService) Put(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *FlatService) Post(w http.ResponseWriter, r *http.Request) error {
-	var flat models.Flat
-	err := json.NewDecoder(r.Body).Decode(&flat)
+	var url models.Url
+	err := json.NewDecoder(r.Body).Decode(&url)
 	if err != nil {
 		s.errHandler(err)
 		return err
 	}
+	flat, err := s.collector.Parse(url.Url)
+	if err != nil {
+		s.errHandler(err)
+		return err
+	}
+
 	err = s.inTx(r.Context(), func(tx models.Tx) error {
 		err := tx.CreateFlat(flat)
 		if err != nil {

@@ -52,8 +52,8 @@ func (t *Tx) UpdateEmailToken(tok models.EmailToken) error {
 }
 
 // CreateFlat creates a flat in the database.
-func (t *Tx) CreateFlat(u models.Flat) error {
-	return insertFlat(t.tx.Exec, u)
+func (t *Tx) CreateFlat(f models.Flat) error {
+	return insertFlat(t.tx.Exec, f)
 }
 
 // UpdateFlat updates a flat in the database.

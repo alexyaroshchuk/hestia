@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/gocolly/colly/v2"
+	"hestia/pkg/utils/parsers"
 	"io"
 	"log/slog"
 	"net/http"
@@ -74,10 +76,15 @@ func run(ctx context.Context, w io.Writer) int {
 	}
 	authSvc := services.NewAuthServer(dbPG, jwtC, authErrHandler)
 
+	collectorErrHandler := func(err error) {
+		logger.Error("collector util error", "error", err)
+	}
+	collector := parsers.NewCollector(colly.NewCollector(), collectorErrHandler)
+
 	flatErrHandler := func(err error) {
 		logger.Error("flat service error", "error", err)
 	}
-	flatSvc := services.NewFlatService(dbPG, flatErrHandler)
+	flatSvc := services.NewFlatService(dbPG, collector, flatErrHandler)
 
 	serverDeps := &web.ServerDeps{
 		Logger:       logger,
